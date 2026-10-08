@@ -17,7 +17,7 @@ command = "pnpm run worker-build"
 # Free plan has 10ms CPU time limit per request
 # Paid plan has 30s CPU time limit per request
 [limits]
-cpu_ms = 300_000 
+cpu_ms = 30_000 
 
 [observability]
 enabled = true
