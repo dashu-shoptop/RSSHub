@@ -98,7 +98,16 @@ const launchBrowser = async (currentProxy?: ProxyState | null, javaScriptEnabled
     } else if (config.playwrightWSEndpoint) {
         browser = await chromium.connect(getBrowserlessEndpoint(config.playwrightWSEndpoint, toBrowserlessLaunchOptions(currentProxy)));
     } else {
-        browser = await chromium.launch(getLaunchOptions(currentProxy));
+        const launchOptions = getLaunchOptions(currentProxy);
+        try {
+            browser = await chromium.launch(launchOptions);
+        } catch (error) {
+            if (config.chromiumExecutablePath || !(error instanceof Error) || !error.message.includes("Executable doesn't exist")) {
+                throw error;
+            }
+            // Reuse installed Chrome when the bundled browser has not been downloaded.
+            browser = await chromium.launch({ ...launchOptions, channel: 'chrome' });
+        }
     }
     try {
         const context = await browser.newContext(getContextOptions(javaScriptEnabled));
